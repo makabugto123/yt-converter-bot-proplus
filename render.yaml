@@ -2,7 +2,7 @@ services:
   - type: web
     name: yt-converter-bot-proplus  # Custom name for your beast
     env: python
-    plan: pro_plus                  # Boom — your choice! 8GB RAM / 4 CPUs
+    plan: pro_ultra                  # Boom — your choice! 8GB RAM / 4 CPUs
     region: singapore               # Fastest for PH users (low ping)
     branch: main                    # Your default Git branch
 
