@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: yt-converter-bot-proplus  # Custom name for your beast
+    env: python
+    plan: pro_plus                  # Boom — your choice! 8GB RAM / 4 CPUs
+    region: singapore               # Fastest for PH users (low ping)
+    branch: main                    # Your default Git branch
+
+    # Build: Install Python deps + upgrade pip for speed
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    # Pre-deploy: Install ffmpeg (your bot needs this for MP3/MP4 magic)
+    preDeployCommand: |
+      if [ -f apt-packages.txt ]; then
+        sudo apt-get update -y && xargs apt-get install -y < apt-packages.txt
+      fi
+
+    # Start your bot (assumes script is main.py — rename if needed)
+    startCommand: python main.py
+
+    # Auto-deploy on git push (hands-free updates)
+    autoDeploy: true
+
+    # Persistent disk: SQLite DB survives restarts/deploys forever
+    disks:
+      - name: data
+        mountPath: /data
+        sizeGB: 10                       # Pro Plus can handle bigger (5GB for growth)
+
+    # Env vars: Core ones here, secrets in Render dashboard
+    envVars:
+      TELEGRAM_BOT_TOKEN:
+        sync: false                    # Paste your real token in dashboard
+      YT_CONVERTER_DB: "/data/converter.db"    # Persistent users/queue
+      YT_CONVERTER_TMP: "/tmp"                 # Massive temp space (no OOM errors)
+      MAX_PENDING_PER_USER: ""                # Max jobs/user — bumped for Pro Plus power
+      ENQUEUE_COOLDOWN_SECONDS: "30"           # Faster queuing, still anti-spam
+      PYTHONUNBUFFERED: "true"                 # Real-time logs in dashboard
+
+# Blueprint: One-click deploy preview in Render (cool bonus)
+blueprints:
+  - name: "YT Converter Bot - Pro Plus Edition"
+    description: "PH-optimized Telegram bot: YT → MP3/MP4 with queue, credits & persistence"
+    icon: robot
